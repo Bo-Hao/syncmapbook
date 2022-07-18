@@ -10,16 +10,14 @@ import (
 // [price, volume]
 
 // Ask
-func NewAskBook(IsEvent bool) *AskBook {
+func NewAskBook() *AskBook {
 	return &AskBook{
 		Book: sync.Map{},
-
-		isEvent: IsEvent,
-		event:   [][]string{},
 	}
 }
 
 func (book *AskBook) Snapshot(snapshot [][]string) {
+	book.Clear()
 	for i := range snapshot {
 		order := snapshot[i]
 		price := order[0]
@@ -76,16 +74,14 @@ func (book *AskBook) GetAll() ([][]string, bool) {
 }
 
 // bid
-func NewBidBook(IsEvent bool) *BidBook {
+func NewBidBook() *BidBook {
 	return &BidBook{
 		Book: sync.Map{},
-
-		isEvent: IsEvent,
-		event:   [][]string{},
 	}
 }
 
 func (book *BidBook) Snapshot(snapshot [][]string) {
+	book.Clear()
 	for i := range snapshot {
 		order := snapshot[i]
 		price := order[0]
@@ -139,4 +135,18 @@ func (book *BidBook) GetAll() ([][]string, bool) {
 	} else {
 		return bids, false
 	}
+}
+
+func (book *AskBook) Clear() {
+	book.Book.Range(func(key interface{}, value interface{}) bool {
+		book.Book.Delete(key)
+		return true
+	})
+}
+
+func (book *BidBook) Clear() {
+	book.Book.Range(func(key interface{}, value interface{}) bool {
+		book.Book.Delete(key)
+		return true
+	})
 }
